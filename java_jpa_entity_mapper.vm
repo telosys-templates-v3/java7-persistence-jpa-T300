@@ -9,8 +9,8 @@
 package ${target.javaPackageFromFolder(${SRC})};
 
 import ${ROOT_PKG}.persistence.jpa.commons.AbstractServiceMapper;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+## import org.modelmapper.ModelMapper;
+## import org.modelmapper.convention.MatchingStrategies;
 
 import ${ROOT_PKG}.record.${recordClassName}; // "Neutral Record" class 
 import ${ROOT_PKG}.persistence.jpa.record.${entityClassName}; // "JPA Entity" class 
@@ -20,6 +20,7 @@ import ${ROOT_PKG}.persistence.jpa.record.${entityClassName}; // "JPA Entity" cl
  */
 public class ${entity.name}Mapper extends AbstractServiceMapper {
 
+#*
 	/**
 	 * ModelMapper : bean to bean mapping library.
 	 */
@@ -32,11 +33,19 @@ public class ${entity.name}Mapper extends AbstractServiceMapper {
 		modelMapper = new ModelMapper();
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 	}
+*#
 
-#set($uncapitalizedName = $fn.uncapitalize(${entity.name}) )
 	/**
-	 * Mapping from '${entity.name}Entity' to '${entity.name}'
-	 * @param entity the 'input' entity 
+	 * Constructor.
+	 */
+	public ${entity.name}Mapper() {
+		super();
+	}
+
+
+	/**
+	 * Mapping from '${entityClassName}' to '${recordClassName}'
+	 * @param entity the mapping input 
 	 */
 	public $recordClassName mapEntityToRecord ( ${entityClassName} entity) {
 		if ( entity == null ) {
@@ -48,11 +57,24 @@ public class ${entity.name}Mapper extends AbstractServiceMapper {
 
 		return record ;
 	}
-	
+
+	/**
+	 * Mapping from '${recordClassName}' to '${entityClassName}' 
+	 * @param record the mapping input 
+	 * @return
+	 */
+	public ${entityClassName} mapRecordToEntity(${recordClassName} record) {
+		if ( record == null ) {
+			return null;
+		}
+		return map(record, ${entityClassName}.class);
+	}
+
+
 	/**
 	 * Mapping from record '${recordClassName}' to entity '${entityClassName}'
-	 * @param $uncapitalizedName
-	 * @param ${uncapitalizedName}Entity
+	 * @param record
+	 * @param entity
 	 */
 	public void mapRecordToEntity(${recordClassName} record, ${entityClassName} entity) {
 		if ( record == null ) {
@@ -62,7 +84,8 @@ public class ${entity.name}Mapper extends AbstractServiceMapper {
 		//--- Generic mapping 
 		map(record, entity);
 	}
-	
+
+#*	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -74,5 +97,5 @@ public class ${entity.name}Mapper extends AbstractServiceMapper {
 	protected void setModelMapper(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
 	}
-
+*#
 }

@@ -20,9 +20,7 @@ package ${target.javaPackageFromFolder($SRC)};
 import $import;
 #end
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
+import java.util.List;
 
 import ${ROOT_PKG}.record.${recordClassName}; // Neutral 'record' class 
 import ${ROOT_PKG}.persistence.jpa.record.${entityClassName}; // JPA 'entity' class 
@@ -31,7 +29,7 @@ import ${ROOT_PKG}.persistence.jpa.record.${entityClassName}; // JPA 'entity' cl
 import ${ROOT_PKG}.persistence.jpa.record.${keyClassName};
 #end
 import ${ROOT_PKG}.persistence.jpa.commons.GenericJpaService;
-import ${ROOT_PKG}.persistence.jpa.commons.JpaOperation;
+import ${ROOT_PKG}.persistence.jpa.mapper.${entity.name}Mapper;
 
 import ${ROOT_PKG}.persistence.${entity.name}Persistence;
 
@@ -43,6 +41,8 @@ import ${ROOT_PKG}.persistence.${entity.name}Persistence;
  */
 public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClassName}, $primaryKeyType> implements ${entity.name}Persistence {
 
+	private final ${entity.name}Mapper mapper = new ${entity.name}Mapper();
+
 	/**
 	 * Constructor
 	 */
@@ -51,14 +51,54 @@ public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClas
 	}
 
 	@Override
-	public ${entityClassName} load( $fn.argumentsListWithType( $entity.keyAttributes ) ) {
+	public ${recordClassName} findById( $fn.argumentsListWithType( $entity.keyAttributes ) ) {
 #if ( $entity.hasCompositePrimaryKey() )
 		// Build the composite key
 		$primaryKeyType key = new $primaryKeyType( $fn.argumentsList( $entity.keyAttributes ) );
-		return super.load( key );
+		${entityClassName} entity = super.find( key );
 #else
-		return super.load( $fn.argumentsList( $entity.keyAttributes ) );
+		${entityClassName} entity = super.find( $fn.argumentsList( $entity.keyAttributes ) );
+#end
+		return mapper.mapEntityToRecord(entity);	
+	}
+
+	@Override
+	public List<${recordClassName}> findAll() {
+		// TODO 
+		return new java.util.LinkedList<${recordClassName}>();
+	}
+
+	@Override
+	public ${recordClassName} create(${recordClassName} record) {
+		${entityClassName} entity = mapper.mapRecordToEntity(record);
+		super.persist(entity);
+		return record ;
+	}
+	
+	@Override
+	public boolean update(${recordClassName} record) {
+#if ( $entity.hasCompositePrimaryKey() )
+		// Build the composite key
+		$primaryKeyType pk = new $primaryKeyType( $fn.argumentsListWithGetter( "record", $entity.keyAttributes ) );
+#else
+		$primaryKeyType pk = $fn.argumentsListWithGetter( "record", $entity.keyAttributes ) ;
 #end	
+		if ( super.find( pk ) != null ) {
+			// Exists => 'merge' 
+			${entityClassName} entity = mapper.mapRecordToEntity(record);
+			super.merge(entity);
+			return true ;
+		}
+		else {
+			return false;
+		}
+	}
+
+	@Override
+	public ${recordClassName} save(${recordClassName} record) {
+		${entityClassName} entity = mapper.mapRecordToEntity(record);
+		super.merge(entity);
+		return record ;
 	}
 
 	@Override
@@ -66,9 +106,9 @@ public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClas
 #if ( $entity.hasCompositePrimaryKey() )
 		// Build the composite key
 		$primaryKeyType key = new $primaryKeyType( $fn.argumentsList( $entity.keyAttributes ) );
-		return super.delete( key );
+		return super.remove( key );
 #else
-		return super.delete( $fn.argumentsList( $entity.keyAttributes ) );
+		return super.remove( $fn.argumentsList( $entity.keyAttributes ) );
 #end	
 	}
 
@@ -78,14 +118,15 @@ public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClas
 #if ( $entity.hasCompositePrimaryKey() )
 			// Build the composite key
 			$primaryKeyType key = new $primaryKeyType( $fn.argumentsListWithGetter( "record", $entity.keyAttributes ) );
-			return super.delete( key );
+			return super.remove( key );
 #else
-			return super.delete( $fn.argumentsListWithGetter( "record", $entity.keyAttributes ) );
+			return super.remove( $fn.argumentsListWithGetter( "record", $entity.keyAttributes ) );
 #end	
 		}
 		return false ;
 	}
 
+/*
 	//@Override
 	public long countAll() {
 		// JPA operation definition 
@@ -98,6 +139,18 @@ public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClas
 		} ;
 		// JPA operation execution 
 		return (Long) execute(operation);
+	}
+*/
+
+	public long countAll() {
+		Long count = (Long) super.execNamedQueryWithSingleResult("AuthorEntity.countAll") ;
+		return count ;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<${entityClassName} > queryExample() {
+		List<?> r = super.execNamedQuery("AuthorEntity.countAll") ;
+		return (List<${entityClassName} >) r ;
 	}
 
 }

@@ -82,11 +82,11 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param primaryKey
 	 * @return
 	 */
-	public T load(final PK primaryKey) {
+	public T find(final PK primaryKey) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
+			public Object execute(EntityManager em) throws PersistenceException {
 				return em.find(persistentClass, primaryKey);
 			}
 		} ;
@@ -104,7 +104,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
+			public Object execute(EntityManager em) throws PersistenceException {
 				final Query query = em.createQuery("from " + persistentClass.getName());
 				return query.getResultList();
 			}
@@ -122,7 +122,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
+			public Object execute(EntityManager em) throws PersistenceException {
 				final Query query = em.createNamedQuery(queryName);
 				return query.getResultList();
 			}
@@ -141,7 +141,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
+			public Object execute(EntityManager em) throws PersistenceException {
 				final Query query = em.createNamedQuery(queryName);
 				final Iterator<String> i = queryParameters.keySet().iterator();
 				while (i.hasNext()) {
@@ -160,11 +160,11 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param <T>
 	 * @return
 	 */
-	public void insert(final T entity) {
+	public void persist(final T entity) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
+			public Object execute(EntityManager em) throws PersistenceException {
 				em.persist(entity);
 				return null;
 			}
@@ -179,11 +179,11 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param entity
 	 * @return
 	 */
-	public T save(final T entityToSave) {
+	public T merge(final T entityToSave) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
+			public Object execute(EntityManager em) throws PersistenceException {
 				T managedEntity = em.merge(entityToSave);
 				return managedEntity;
 			}
@@ -196,11 +196,11 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * Delete entity by primary key ( TRANSACTIONAL )
 	 * @param primaryKey
 	 */
-	public boolean delete(final PK primaryKey) {
+	public boolean remove(final PK primaryKey) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
+			public Object execute(EntityManager em) throws PersistenceException {
 				final T entity = em.find(persistentClass, primaryKey);
 				if (entity != null) {
 					em.remove(entity);
@@ -214,6 +214,42 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 		// JPA operation execution 
 		Boolean b = (Boolean) execute(operation, TRANSACTIONAL) ;
 		return b.booleanValue();
+	}
+
+	/**
+	 * Executes the given named query and returns the result list
+	 * @param namedQuery
+	 * @return
+	 */
+	public List<?> execNamedQuery(final String namedQuery) {
+		// JPA operation definition 
+		JpaOperation operation = new JpaOperation() {
+			@Override
+			public Object execute(EntityManager em) throws PersistenceException {
+				Query query = em.createNamedQuery(namedQuery);
+				return query.getResultList();
+			}
+		} ;
+		// JPA operation execution 
+		return (List<?>) execute(operation);		
+	}
+	
+	/**
+	 * Executes the given named query and returns its single result
+	 * @param namedQuery
+	 * @return the single result
+	 */
+	public Object execNamedQueryWithSingleResult(final String namedQuery) {
+		// JPA operation definition 
+		JpaOperation operation = new JpaOperation() {
+			@Override
+			public Object execute(EntityManager em) throws PersistenceException {
+				Query query = em.createNamedQuery(namedQuery);
+				return query.getSingleResult() ;
+			}
+		} ;
+		// JPA operation execution 
+		return execute(operation);		
 	}
 
 	/**
@@ -240,7 +276,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
+			public Object execute(EntityManager em) throws PersistenceException {
 				CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 				CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(persistentClass);
 				Root<T> from = criteriaQuery.from(persistentClass);
