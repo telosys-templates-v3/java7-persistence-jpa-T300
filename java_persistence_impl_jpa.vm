@@ -22,6 +22,8 @@ import $import;
 
 import java.util.List;
 
+import javax.inject.Named;
+
 import ${ROOT_PKG}.record.${recordClassName}; // Neutral 'record' class 
 import ${ROOT_PKG}.persistence.jpa.record.${entityClassName}; // JPA 'entity' class 
 #if ( $entity.hasCompositePrimaryKey() )
@@ -39,6 +41,7 @@ import ${ROOT_PKG}.persistence.${entity.name}Persistence;
  * @author Telosys Tools Generator
  *
  */
+@Named("${entity.name}Persistence")
 public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClassName}, $primaryKeyType> implements ${entity.name}Persistence {
 
 	private final ${entity.name}Mapper mapper = new ${entity.name}Mapper();
