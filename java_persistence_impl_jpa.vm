@@ -67,8 +67,12 @@ public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClas
 
 	@Override
 	public List<${recordClassName}> findAll() {
-		// TODO 
-		return new java.util.LinkedList<${recordClassName}>();
+		List<${entityClassName}> entities = super.loadAll() ;
+		List<${recordClassName}> records = new java.util.LinkedList<${recordClassName}>();
+		for ( ${entityClassName} entity : entities ) {
+			records.add( mapper.mapEntityToRecord(entity) ) ;
+		}
+		return records ;
 	}
 
 	@Override
