@@ -46,7 +46,7 @@ $jpa.embeddedIdAnnotations(4, $field)
         super();
     }
 
-    public ${currentClassName}( $fn.argumentsListWithType($entity.keyAttributes) ) {
+    public ${currentClassName}( $fn.argumentsListWithWrapperType($entity.keyAttributes) ) {
         super();
 #foreach( $field in $entity.keyAttributes )
         this.$field.name = $field.name ;

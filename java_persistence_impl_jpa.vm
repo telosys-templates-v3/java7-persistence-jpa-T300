@@ -54,7 +54,7 @@ public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClas
 	}
 
 	@Override
-	public ${recordClassName} findById( $fn.argumentsListWithType( $entity.keyAttributes ) ) {
+	public ${recordClassName} findById( $fn.argumentsListWithWrapperType( $entity.keyAttributes ) ) {
 #if ( $entity.hasCompositePrimaryKey() )
 		// Build the composite key
 		$primaryKeyType key = new $primaryKeyType( $fn.argumentsList( $entity.keyAttributes ) );
@@ -109,7 +109,7 @@ public class ${entity.name}PersistenceJPA extends GenericJpaService<${entityClas
 	}
 
 	@Override
-	public boolean deleteById( $fn.argumentsListWithType( $entity.keyAttributes ) ) {
+	public boolean deleteById( $fn.argumentsListWithWrapperType( $entity.keyAttributes ) ) {
 #if ( $entity.hasCompositePrimaryKey() )
 		// Build the composite key
 		$primaryKeyType key = new $primaryKeyType( $fn.argumentsList( $entity.keyAttributes ) );
