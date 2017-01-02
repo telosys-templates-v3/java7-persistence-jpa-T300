@@ -5,4 +5,5 @@
 #set( $jpaRecordClass    = "${entity.name}JpaRecord" )
 #set( $jpaRecordKeyClass = "${entity.name}JpaRecordKey" )
 #set( $jpaMapperClass    = "${entity.name}JpaMapper" )
+#set( $jpaServiceClass   = "${entity.name}PersistenceJpa" )
 ##
