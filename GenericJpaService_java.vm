@@ -18,7 +18,7 @@ import javax.persistence.criteria.Root;
 
 /**
  * Generic JPA service operations <br>
- * Provided by Telosys Tools for JPA testing
+ * Provided by Telosys Tools for JPA persistence services
  * 
  * @param <T>    Entity type
  * @param <PK>   Primary key type
@@ -39,7 +39,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * Constructor
 	 * @param persistentClass
 	 */
-	public GenericJpaService(final Class<T> persistentClass) {
+	protected GenericJpaService(final Class<T> persistentClass) {
 		this.persistentClass = persistentClass;
 	}
 	
@@ -51,7 +51,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @return result
 	 * @throws PersistenceException
 	 */
-	protected final Object execute(JpaOperation operation) throws PersistenceException {
+	private final Object execute(JpaOperation operation) throws PersistenceException {
 		return execute(operation, false) ;
 	}
 
@@ -64,7 +64,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @return result
 	 * @throws PersistenceException
 	 */
-	protected final Object execute(JpaOperation operation, boolean transactional) throws PersistenceException {
+	private final Object execute(JpaOperation operation, boolean transactional) throws PersistenceException {
 		JpaEnvironment jpaEnvironment = JpaEnvironments.getInstance().getJpaEnvironment(JpaConfig.JPA_PERSISTENCE_UNIT_NAME);
 		if ( transactional ) {
 			return jpaEnvironment.executeWithTransaction(operation) ;
@@ -80,7 +80,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param primaryKey
 	 * @return
 	 */
-	public T find(final PK primaryKey) {
+	protected T find(final PK primaryKey) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
@@ -98,7 +98,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param query
 	 * @return
 	 */
-	public List<T> loadAll() {
+	protected List<T> loadAll() {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
@@ -116,7 +116,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param queryName
 	 * @return
 	 */
-	public List<T> loadByNamedQuery(final String queryName) {
+	protected List<T> loadByNamedQuery(final String queryName) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
@@ -135,7 +135,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param queryParameters
 	 * @return
 	 */
-	public List<T> loadByNamedQuery(final String queryName, final Map<String, Object> queryParameters) {
+	protected List<T> loadByNamedQuery(final String queryName, final Map<String, Object> queryParameters) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
@@ -158,7 +158,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param <T>
 	 * @return
 	 */
-	public void persist(final T entity) {
+	protected void persist(final T entity) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
@@ -177,7 +177,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @param entity
 	 * @return
 	 */
-	public T merge(final T entityToSave) {
+	protected T merge(final T entityToSave) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
@@ -194,7 +194,7 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * Delete entity by primary key ( TRANSACTIONAL )
 	 * @param primaryKey
 	 */
-	public boolean remove(final PK primaryKey) {
+	protected boolean remove(final PK primaryKey) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
@@ -215,11 +215,55 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	}
 
 	/**
+	 * Builds and executes a query "SELECT COUNT(x) FROM xxx" 
+	 * @param clazz
+	 * @return
+	 */
+	protected long executeCountAll(final Class<T> clazz) {
+		JpaOperation operation = new JpaOperation() {
+			@Override
+			public Object execute(EntityManager em) throws PersistenceException {
+				TypedQuery<Long> typedQuery = buildSelectCountQuery(em, clazz);
+				return typedQuery.getSingleResult();
+			}
+		};
+		// JPA operation execution 
+		return (Long) execute(operation);
+	}
+	
+	/**
+	 * Builds a "SELECT COUNT(x) FROM xxx" query
+	 * @param em
+	 * @param clazz
+	 * @return
+	 */
+	private TypedQuery<Long> buildSelectCountQuery(final EntityManager em, final Class<T> clazz) {
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+		// SELECT ... COUNT ... FROM
+		criteriaQuery.select(criteriaBuilder.count(criteriaQuery.from(clazz)));
+		// WHERE 
+		// criteriaQuery.where(predicates);
+		
+		TypedQuery<Long> typedQuery = em.createQuery(criteriaQuery);
+		return typedQuery ;
+	}
+	
+	/**
+	 * Builds a query name by adding the persistent class name with "." at the beginning of the given query name
+	 * @param genericQueryName
+	 * @return
+	 */
+	protected String buildQueryName(String genericQueryName) {
+		return this.persistentClass.getSimpleName() + "." + genericQueryName ;
+	}
+
+	/**
 	 * Executes the given named query and returns the result list
 	 * @param namedQuery
 	 * @return
 	 */
-	public List<?> execNamedQuery(final String namedQuery) {
+	protected List<?> execNamedQuery(final String namedQuery) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
@@ -233,16 +277,24 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	}
 	
 	/**
-	 * Executes the given named query and returns its single result
+	 * Executes the given named query with the given parameters and returns a single result
 	 * @param namedQuery
+	 * @param parameters
 	 * @return the single result
 	 */
-	public Object execNamedQueryWithSingleResult(final String namedQuery) {
+	protected Object execNamedQueryWithSingleResult(final String namedQuery, final Object... parameters) {
 		// JPA operation definition 
 		JpaOperation operation = new JpaOperation() {
 			@Override
 			public Object execute(EntityManager em) throws PersistenceException {
 				Query query = em.createNamedQuery(namedQuery);
+				if ( parameters != null ) {
+					int i = 1 ;
+					for ( Object param : parameters ) {
+						query.setParameter(i, param);
+						i++ ;
+					}
+				}
 				return query.getSingleResult() ;
 			}
 		} ;
@@ -251,12 +303,38 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	}
 
 	/**
+	 * Executes the given JPQL query with the given parameters and returns a single result
+	 * @param jpqlQuery
+	 * @param parameters
+	 * @return
+	 */
+	protected Object execJPQLQueryWithSingleResult(final String jpqlQuery, final Object... parameters) {
+		// JPA operation definition 
+		JpaOperation operation = new JpaOperation() {
+			@Override
+			public Object execute(EntityManager em) throws PersistenceException {
+				Query query = em.createQuery(jpqlQuery);
+				if ( parameters != null ) {
+					int i = 1 ;
+					for ( Object param : parameters ) {
+						query.setParameter(i, param);
+						i++ ;
+					}
+				}
+				return query.getSingleResult() ;
+			}
+		} ;
+		// JPA operation execution 
+		return execute(operation);
+	}
+
+	/**
 	 * Search entities using the given query parameters <br>
 	 * Returns all the entities if no query parameter 
 	 * @param queryParameters the query parameters to be used (can be null )
 	 * @return
 	 */
-	public List<T> search( final Map<String, Object> queryParameters ) {
+	protected List<T> search( final Map<String, Object> queryParameters ) {
 		if ( queryParameters != null  ) {
 			return this.searchWithParameters(queryParameters);
 		}

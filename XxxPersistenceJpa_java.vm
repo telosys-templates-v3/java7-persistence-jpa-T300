@@ -132,31 +132,36 @@ public class ${jpaServiceClass} extends GenericJpaService<${jpaRecordClass}, $pr
 		return false ;
 	}
 
-/*
-	//@Override
+	@Override
 	public long countAll() {
-		// JPA operation definition 
-		JpaOperation operation = new JpaOperation() {
-			@Override
-			public Object exectue(EntityManager em) throws PersistenceException {
-				Query query = em.createNamedQuery("${entity.name}Entity.countAll");
-				return query.getSingleResult() ;
-			}
-		} ;
-		// JPA operation execution 
-		return (Long) execute(operation);
+		Long count = (Long) super.execNamedQueryWithSingleResult( buildQueryName("countAll") ) ;
+		return count.longValue();
 	}
-*/
 
-	public long countAll() {
-		Long count = (Long) super.execNamedQueryWithSingleResult("AuthorEntity.countAll") ;
-		return count ;
+	public long countById($fn.argumentsListWithWrapperType($entity.keyAttributes)) {
+		Long count = (Long) super.execNamedQueryWithSingleResult( buildQueryName("countById"), $fn.argumentsList($entity.keyAttributes) ) ;
+		return count.longValue();
+	}
+	
+	@Override
+	public boolean exists($fn.argumentsListWithWrapperType($entity.keyAttributes)) {
+		long count = countById($fn.argumentsList($entity.keyAttributes)) ;
+		return count > 0 ;
+	}
+
+
+	@Override
+	public boolean exists(${recordClass} record) {
+		if ( record != null ) {
+			return exists( $fn.argumentsListWithGetter( "record", $entity.keyAttributes ) );
+		}
+		return false ;
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<${jpaRecordClass} > queryExample() {
-		List<?> r = super.execNamedQuery("AuthorEntity.countAll") ;
-		return (List<${jpaRecordClass} >) r ;
+	public List<${jpaRecordClass}> queryExample() {
+		List<?> list = super.execNamedQuery(buildQueryName("theNamedQueryToBeUsed")) ;
+		return (List<${jpaRecordClass}>) list ;
 	}
 
 }

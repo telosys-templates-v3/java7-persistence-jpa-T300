@@ -20,20 +20,21 @@ public class JpaEnvironments {
 		return singleInstance ;
 	}
 	
-	public JpaEnvironment getJpaEnvironment(final String peristanceUnitName ) {
-		JpaEnvironment env = environments.get(peristanceUnitName) ;
+	public JpaEnvironment getJpaEnvironment(final String peristenceUnitName ) {
+		JpaEnvironment env = environments.get(peristenceUnitName) ;
 		if ( env == null ) {
-			env = createNewJpaEnvironment( peristanceUnitName );
+			env = createNewJpaEnvironment( peristenceUnitName );
 		}
 		return env ;
 	}
 
-	private synchronized JpaEnvironment createNewJpaEnvironment(final String peristanceUnitName ) {
-		JpaEnvironment env = environments.get(peristanceUnitName) ; // double check 
+	private synchronized JpaEnvironment createNewJpaEnvironment(final String peristenceUnitName ) {
+		JpaEnvironment env = environments.get(peristenceUnitName) ; // double check 
 		if ( env == null ) {
-			env = new JpaEnvironment(peristanceUnitName);
-			environments.put(peristanceUnitName, env);
+			env = new JpaEnvironment(peristenceUnitName);
+			environments.put(peristenceUnitName, env);
 		}
 		return env ;
 	}
 }
+
