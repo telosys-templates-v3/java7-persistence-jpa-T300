@@ -7,3 +7,4 @@
 #set( $jpaMapperClass    = "${entity.name}JpaMapper" )
 #set( $jpaServiceClass   = "${entity.name}PersistenceJpa" )
 ##
+## #set( $keyClassName    = "${entity.name}EntityKey" )

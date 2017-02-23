@@ -65,7 +65,8 @@ public abstract class GenericJpaService<T, PK extends java.io.Serializable> {
 	 * @throws PersistenceException
 	 */
 	private final Object execute(JpaOperation operation, boolean transactional) throws PersistenceException {
-		JpaEnvironment jpaEnvironment = JpaEnvironments.getInstance().getJpaEnvironment(JpaConfig.JPA_PERSISTENCE_UNIT_NAME);
+		//JpaEnvironment jpaEnvironment = JpaEnvironments.getInstance().getJpaEnvironment(JpaConfig.JPA_PERSISTENCE_UNIT_NAME);
+		JpaEnvironment jpaEnvironment = JpaEnvironments.getInstance().getJpaEnvironment();
 		if ( transactional ) {
 			return jpaEnvironment.executeWithTransaction(operation) ;
 		}

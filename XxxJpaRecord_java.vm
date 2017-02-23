@@ -14,7 +14,7 @@
 ## IF COMPOSITE PRIMARY KEY : GENERATE A JAVA CLASS FOR THIS COMPOSITE KEY
 #if ( $entity.hasCompositePrimaryKey() )
 ## // This Bean has a composite Primary Key  
-$generator.generate($target.entityName ,  "${jpaRecordKeyClass}.java", $target.folder, "java_jpa_entity_pk.vm"  )
+$generator.generate($target.entityName ,  "${jpaRecordKeyClass}.java", $target.folder, "XxxJpaRecordKey_java.vm"  )
 #else 
 ## // This Bean has a basic Primary Key (not composite) 
 #end
@@ -49,11 +49,23 @@ import $import;
  * @author Telosys Tools Generator
  *
  */
-
+##--- JPQL PK WHERE CLAUSE
+#set( $whereClause = "" )
+#set( $compositePK = "" )
+#if ( $entity.hasCompositePrimaryKey() )
+#set( $compositePK = "compositePrimaryKey." )
+#end
+#foreach( $field in $entity.keyAttributes )
+#if($foreach.count > 1)
+#set( $whereClause = "${whereClause} AND " )
+#end
+#set( $whereClause = "${whereClause}x.${compositePK}${field.name} = ?${foreach.count} " )
+#end
 $jpa.entityAnnotations(0, $entity)
 // Define named queries here
 @NamedQueries ( {
-  @NamedQuery ( name="${jpaRecordClass}.countAll", query="SELECT COUNT(x) FROM ${jpaRecordClass} x" )
+  @NamedQuery ( name="${jpaRecordClass}.countAll",  query="SELECT COUNT(x) FROM ${jpaRecordClass} x" ),
+  @NamedQuery ( name="${jpaRecordClass}.countById", query="SELECT COUNT(x) FROM ${jpaRecordClass} x WHERE ${whereClause}" )
 } )
 public class ${jpaRecordClass} implements Serializable {
 

@@ -1,0 +1,30 @@
+#checkId($entity)
+#parse("../include/init_var_entity.vm")
+#parse("../include/java_header.vm")
+##--------------------------------------------------------------------------------------------------------
+#set( $persistenceInterface = "${entity.name}Persistence" )
+##--------------------------------------------------------------------------------------------------------
+package ${target.javaPackageFromFolder($TEST_SRC)};
+
+import java.sql.SQLException;
+
+import ${ROOT_PKG}.persistence.$persistenceInterface ;
+import ${ROOT_PKG}.persistence.${entity.name}PersistenceGenericTest;
+import org.junit.Test;
+
+/**
+ * JUnit tests for ${entity.name} persistence service
+ * 
+ * @author Telosys Tools
+ *
+ */
+public class ${entity.name}PersistenceJpaTest extends ${entity.name}PersistenceGenericTest {
+
+	@Test
+	public void testPersistenceService() throws SQLException {
+
+    	$persistenceInterface persistenceService = new ${jpaServiceClass}();
+
+    	testPersistenceService(persistenceService);
+	}	
+}
