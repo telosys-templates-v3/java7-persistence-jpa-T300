@@ -6,8 +6,6 @@
 ##--------------------------------------------------------------------------------------------------------
 package ${target.javaPackageFromFolder($TEST_SRC)};
 
-import java.sql.SQLException;
-
 import ${ROOT_PKG}.persistence.$persistenceInterface ;
 import ${ROOT_PKG}.persistence.${entity.name}PersistenceGenericTest;
 import org.junit.Test;
@@ -21,10 +19,15 @@ import org.junit.Test;
 public class ${entity.name}PersistenceJpaTest extends ${entity.name}PersistenceGenericTest {
 
 	@Test
-	public void testPersistenceService() throws SQLException {
+	public void testPersistenceService() {
 
     	$persistenceInterface persistenceService = new ${jpaServiceClass}();
 
+
+#if ( $entity.hasAutoIncrementedKey() )
+    	testPersistenceServiceWithAutoincrementedKey(persistenceService);
+#else
     	testPersistenceService(persistenceService);
+#end
 	}	
 }

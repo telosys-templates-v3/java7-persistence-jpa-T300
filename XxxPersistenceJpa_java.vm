@@ -80,6 +80,11 @@ public class ${jpaServiceClass} extends GenericJpaService<${jpaRecordClass}, $pr
 	public ${recordClass} create(${recordClass} record) {
 		${jpaRecordClass} entity = mapper.mapRecordToEntity(record);
 		super.persist(entity);
+#if ( $entity.hasAutoIncrementedKey() )
+		// Auto-incremented key : set the generated id in the original record
+		record.${entity.autoincrementedKeyAttribute.setter}( entity.${entity.autoincrementedKeyAttribute.getter}() ) ;
+		//record.setId(entity.getId());
+#end
 		return record ;
 	}
 	
