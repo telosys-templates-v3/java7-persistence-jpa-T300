@@ -24,4 +24,12 @@
 			<version>0.6.2</version>
 		</dependency>
 
+		<!-- H2 JDBC driver for JUnit tests -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.181</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
