@@ -1,6 +1,6 @@
 #checkId($entity)
-#parse("../include/init_var_entity.vm")
-#parse("../include/java_header.vm")
+#parse("/include/init_var_entity.vm")
+#parse("/include/java_header.vm")
 ##--------------------------------------------------------------------------------------------------------
 #set( $persistenceInterface = "${entity.name}Persistence" )
 ##--------------------------------------------------------------------------------------------------------
