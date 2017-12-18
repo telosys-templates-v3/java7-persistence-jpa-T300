@@ -2,13 +2,8 @@
 #parse("include/init_var_global.vm")
 #parse("include/init_var_entity.vm")
 #parse("include/java_header.vm")
-##--------------------------------------------------------------------------------------------------------
-## #set( $entityClassName = "${entity.name}EntityRec" )
-## #set( $keyClassName    = "${entity.name}EntityKey" )
-## #set( $recordClassName = "${entity.name}Record" )
 ## ----------------------------------------------------------------------
 #if ( $entity.hasCompositePrimaryKey() )
-## #set( $primaryKeyType = "${entity.name}EntityKey" )
 #set( $primaryKeyType = ${jpaRecordKeyClass} )
 #else 
 #set( $primaryKeyType = $entity.keyAttributes[0].wrapperType )
@@ -28,11 +23,11 @@ import javax.inject.Named;
 import $recordPackage.${recordClass}; // "Neutral Record" class 
 import ${ROOT_PKG}.persistence.${entity.name}Persistence; // Persistence service interface
 import ${jpaCommonsPackage}.GenericJpaService;
-import ${jpaMapperPackage}.${jpaMapperClass} ;
+import ${jpaMapperPackage}.JpaMapper;
+import ${jpaMapperPackage}.JpaMapping;
+
 import ${jpaRecordPackage}.${jpaRecordClass}; // "JPA Record" class (with JPA mapping) 
 #if ( $entity.hasCompositePrimaryKey() )
-## import ${ENTITY_PKG}.jpa.${entity.name}EntityKey;
-## import ${jpaRecordPackage}.${keyClassName};
 import ${jpaRecordPackage}.${jpaRecordKeyClass};
 #end
 
@@ -45,7 +40,7 @@ import ${jpaRecordPackage}.${jpaRecordKeyClass};
 @Named("${entity.name}Persistence")
 public class ${jpaServiceClass} extends GenericJpaService<${jpaRecordClass}, $primaryKeyType> implements ${entity.name}Persistence {
 
-	private final ${jpaMapperClass} mapper = new ${jpaMapperClass}();
+	private final JpaMapper<${jpaRecordClass},${recordClass}> mapper = JpaMapping.getMapperProvider().getMapper(${jpaRecordClass}.class,${recordClass}.class);
 
 	/**
 	 * Constructor
